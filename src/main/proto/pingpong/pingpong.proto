@@ -11,6 +11,11 @@ message Pong {
   string message = 1;
 }
 
+message Ping {
+  string message = 1;
+}
+
 service PingPongService {
   rpc ping(google.protobuf.Empty) returns (stream Pong) {};
+  rpc streamingPing(stream Ping) returns (Pong) {}
 }

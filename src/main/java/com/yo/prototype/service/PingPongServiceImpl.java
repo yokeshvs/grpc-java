@@ -1,6 +1,7 @@
 package com.yo.prototype.service;
 
 import com.google.protobuf.Empty;
+import com.yo.prototype.Ping;
 import com.yo.prototype.PingPongServiceGrpc;
 import com.yo.prototype.Pong;
 import io.grpc.stub.StreamObserver;
@@ -18,5 +19,27 @@ public class PingPongServiceImpl extends PingPongServiceGrpc.PingPongServiceImpl
         } finally {
             responseObserver.onCompleted();
         }
+    }
+
+    @Override
+    public StreamObserver<Ping> streamingPing(StreamObserver<Pong> responseObserver) {
+        StringBuilder stringBuilder = new StringBuilder();
+        return new StreamObserver<Ping>() {
+            @Override
+            public void onNext(Ping value) {
+                stringBuilder.append(value.getMessage()).append(" ");
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(Pong.newBuilder().setMessage(stringBuilder.toString()).build());
+                responseObserver.onCompleted();
+            }
+        };
     }
 }
