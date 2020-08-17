@@ -1,5 +1,6 @@
 package com.yo.prototype.client;
 
+import com.google.protobuf.Empty;
 import com.yo.prototype.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -17,7 +18,7 @@ public class GrpcPrototypeClient {
         //Sync Client
         UserServiceGrpc.UserServiceBlockingStub userServiceBlockingStub = UserServiceGrpc.newBlockingStub(channel);
         CalculatorServiceGrpc.CalculatorServiceBlockingStub calculatorServiceBlockingStub = CalculatorServiceGrpc.newBlockingStub(channel);
-
+        PingPongServiceGrpc.PingPongServiceBlockingStub pingPongServiceBlockingStub = PingPongServiceGrpc.newBlockingStub(channel);
         //Async Client
         //UserServiceGrpc.UserServiceFutureStub futureStub = UserServiceGrpc.newFutureStub(channel);
 
@@ -46,6 +47,12 @@ public class GrpcPrototypeClient {
                 .setValue1(input1)
                 .setValue2(input2)
                 .build()));
+
+        pingPongServiceBlockingStub.ping(Empty.getDefaultInstance()).forEachRemaining(pong -> System.out.println(pong.getMessage()));
+
+        calculatorServiceBlockingStub.primeDecompose(SingleInputRequest.newBuilder().setValue(120).build())
+                .forEachRemaining(calculatorResponse -> System.out.println(calculatorResponse.getResult()));
+
         //Shutdown Channel
         System.out.println("Shutting down channel");
         channel.shutdown();

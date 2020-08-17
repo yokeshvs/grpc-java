@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package proto.pingpong;
+
+import "google/protobuf/empty.proto";
+
+option java_package = "com.yo.prototype";
+option java_multiple_files = true;
+
+message Pong {
+  string message = 1;
+}
+
+service PingPongService {
+  rpc ping(google.protobuf.Empty) returns (stream Pong) {};
+}

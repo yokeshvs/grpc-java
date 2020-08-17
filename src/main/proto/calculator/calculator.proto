@@ -14,8 +14,13 @@ message CalculatorResponse {
   int32 result = 1;
 }
 
+message SingleInputRequest {
+  int32 value = 1;
+}
+
 service CalculatorService {
   rpc add(CalculatorRequest) returns (CalculatorResponse) {};
   rpc subtract(CalculatorRequest) returns (CalculatorResponse) {};
   rpc multiply(CalculatorRequest) returns (CalculatorResponse) {};
+  rpc primeDecompose(SingleInputRequest) returns (stream CalculatorResponse) {};
 }

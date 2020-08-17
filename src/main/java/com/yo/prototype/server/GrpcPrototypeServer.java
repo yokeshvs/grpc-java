@@ -1,6 +1,7 @@
 package com.yo.prototype.server;
 
 import com.yo.prototype.service.CalculatorServiceImpl;
+import com.yo.prototype.service.PingPongServiceImpl;
 import com.yo.prototype.service.UserServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -14,6 +15,7 @@ public class GrpcPrototypeServer {
                 .forPort(50051)
                 .addService(new UserServiceImpl())
                 .addService(new CalculatorServiceImpl())
+                .addService(new PingPongServiceImpl())
                 .build();
 
         server.start();

@@ -22,11 +22,11 @@ public class UserServiceImpl extends UserServiceGrpc.UserServiceImplBase {
 
             //send the response for gRPC call
             responseObserver.onNext(userResponse);
-
-            //complete the gRPC call
-            responseObserver.onCompleted();
         } catch (Exception e) {
             responseObserver.onError(e);
+        } finally {
+            //complete the gRPC call
+            responseObserver.onCompleted();
         }
     }
 }
