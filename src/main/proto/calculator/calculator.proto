@@ -14,6 +14,10 @@ message CalculatorResponse {
   int32 result = 1;
 }
 
+message CalculatorResponseInDouble {
+  double result = 1;
+}
+
 message SingleInputRequest {
   int32 value = 1;
 }
@@ -25,4 +29,7 @@ service CalculatorService {
   rpc primeDecompose(SingleInputRequest) returns (stream CalculatorResponse) {};
   rpc average(stream SingleInputRequest) returns (CalculatorResponse) {};
   rpc findMax(stream SingleInputRequest) returns (stream CalculatorResponse) {};
+  //Throws Runtime exception if the incoming request is negative
+  //Error Code:
+  rpc findSqrt(SingleInputRequest) returns (CalculatorResponseInDouble) {};
 }

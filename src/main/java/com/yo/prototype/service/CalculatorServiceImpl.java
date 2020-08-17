@@ -1,6 +1,7 @@
 package com.yo.prototype.service;
 
 import com.yo.prototype.*;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
 public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServiceImplBase {
@@ -74,6 +75,7 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
     public StreamObserver<SingleInputRequest> findMax(StreamObserver<CalculatorResponse> responseObserver) {
         return new StreamObserver<SingleInputRequest>() {
             int max = Integer.MIN_VALUE;
+
             @Override
             public void onNext(SingleInputRequest inputRequest) {
                 if (inputRequest.getValue() > max) {
@@ -92,5 +94,18 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void findSqrt(SingleInputRequest request, StreamObserver<CalculatorResponseInDouble> responseObserver) {
+        if (request.getValue() >= 0) {
+            responseObserver.onNext(CalculatorResponseInDouble.newBuilder().setResult(Math.sqrt(request.getValue())).build());
+            responseObserver.onCompleted();
+        } else {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription("The number you have sent is invalid")
+                    .augmentDescription("Number sent: " + request.getValue())
+                    .asRuntimeException());
+        }
     }
 }

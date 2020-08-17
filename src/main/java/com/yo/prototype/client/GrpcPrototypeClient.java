@@ -249,7 +249,18 @@ public class GrpcPrototypeClient {
 
         grpcPrototypeClient.biDirectionalServerClientStreamingMaxCalculation();
 
+        grpcPrototypeClient.unaryCalculateSqrt();
+
         grpcPrototypeClient.exit();
+    }
+
+    private void unaryCalculateSqrt() {
+        try {
+            System.out.println(calculatorServiceBlockingStub.findSqrt(SingleInputRequest.newBuilder().setValue(4).build()));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }
