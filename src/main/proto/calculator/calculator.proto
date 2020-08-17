@@ -24,4 +24,5 @@ service CalculatorService {
   rpc multiply(CalculatorRequest) returns (CalculatorResponse) {};
   rpc primeDecompose(SingleInputRequest) returns (stream CalculatorResponse) {};
   rpc average(stream SingleInputRequest) returns (CalculatorResponse) {};
+  rpc findMax(stream SingleInputRequest) returns (stream CalculatorResponse) {};
 }

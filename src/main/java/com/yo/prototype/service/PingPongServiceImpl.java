@@ -42,4 +42,24 @@ public class PingPongServiceImpl extends PingPongServiceGrpc.PingPongServiceImpl
             }
         };
     }
+
+    @Override
+    public StreamObserver<Ping> streamingPingPong(StreamObserver<Pong> responseObserver) {
+        return new StreamObserver<>() {
+            @Override
+            public void onNext(Ping incomingPing) {
+                responseObserver.onNext(Pong.newBuilder().setMessage("Hi " + incomingPing.getMessage()).build());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onCompleted();
+            }
+        };
+    }
 }

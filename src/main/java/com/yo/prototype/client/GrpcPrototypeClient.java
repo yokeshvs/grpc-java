@@ -6,6 +6,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -153,6 +154,82 @@ public class GrpcPrototypeClient {
         }
     }
 
+    private void biDirectionalServerClientStreaming() {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        StreamObserver<Ping> pingStreamObserver = pingPongServiceAsyncStub.streamingPingPong(new StreamObserver<>() {
+            @Override
+            public void onNext(Pong response) {
+                System.out.println(response.getMessage());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Server has completed sending data");
+            }
+        });
+
+        Arrays.asList("Stark", "Rogers", "Romanoff", "Banner", "Wayne").forEach(s -> {
+            System.out.println("Sending ping for " + s);
+            pingStreamObserver.onNext(Ping.newBuilder().setMessage(s).build());
+            //Below thread is to demonstrate async streaming
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        pingStreamObserver.onCompleted();
+
+        try {
+            countDownLatch.await(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void biDirectionalServerClientStreamingMaxCalculation() {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        StreamObserver<SingleInputRequest> requestObserver = calculatorServiceAsyncStub.findMax(new StreamObserver<>() {
+            @Override
+            public void onNext(CalculatorResponse value) {
+                System.out.println("Max number is " + value.getResult());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Server has completed sending data");
+            }
+        });
+
+        Arrays.asList(1, 5, 3, 6, 2, 20).forEach(integer -> {
+            System.out.println("Sending input " + integer);
+            requestObserver.onNext(SingleInputRequest.newBuilder().setValue(integer).build());
+            //Below thread is to demonstrate async streaming
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        requestObserver.onCompleted();
+
+        try {
+            countDownLatch.await(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         GrpcPrototypeClient grpcPrototypeClient = new GrpcPrototypeClient();
 
@@ -167,6 +244,10 @@ public class GrpcPrototypeClient {
         grpcPrototypeClient.unaryClientStreaming();
 
         grpcPrototypeClient.unaryClientStreamingAvgCalculation();
+
+        grpcPrototypeClient.biDirectionalServerClientStreaming();
+
+        grpcPrototypeClient.biDirectionalServerClientStreamingMaxCalculation();
 
         grpcPrototypeClient.exit();
     }

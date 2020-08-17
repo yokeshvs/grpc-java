@@ -1,9 +1,6 @@
 package com.yo.prototype.service;
 
-import com.yo.prototype.CalculatorRequest;
-import com.yo.prototype.CalculatorResponse;
-import com.yo.prototype.CalculatorServiceGrpc;
-import com.yo.prototype.SingleInputRequest;
+import com.yo.prototype.*;
 import io.grpc.stub.StreamObserver;
 
 public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServiceImplBase {
@@ -68,6 +65,30 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
             @Override
             public void onCompleted() {
                 responseObserver.onNext(CalculatorResponse.newBuilder().setResult(total / elementCount).build());
+                responseObserver.onCompleted();
+            }
+        };
+    }
+
+    @Override
+    public StreamObserver<SingleInputRequest> findMax(StreamObserver<CalculatorResponse> responseObserver) {
+        return new StreamObserver<SingleInputRequest>() {
+            int max = Integer.MIN_VALUE;
+            @Override
+            public void onNext(SingleInputRequest inputRequest) {
+                if (inputRequest.getValue() > max) {
+                    max = inputRequest.getValue();
+                    responseObserver.onNext(CalculatorResponse.newBuilder().setResult(max).build());
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
                 responseObserver.onCompleted();
             }
         };
