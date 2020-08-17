@@ -19,4 +19,5 @@ service PingPongService {
   rpc ping(google.protobuf.Empty) returns (stream Pong) {};
   rpc streamingPing(stream Ping) returns (Pong) {};
   rpc streamingPingPong(stream Ping) returns (stream Pong) {};
+  rpc pingWithDeadline(Ping) returns (Pong) {};
 }

@@ -2,8 +2,7 @@ package com.yo.prototype.client;
 
 import com.google.protobuf.Empty;
 import com.yo.prototype.*;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Arrays;
@@ -230,30 +229,6 @@ public class GrpcPrototypeClient {
         }
     }
 
-    public static void main(String[] args) {
-        GrpcPrototypeClient grpcPrototypeClient = new GrpcPrototypeClient();
-
-        grpcPrototypeClient.initialize();
-
-        grpcPrototypeClient.unaryUserCreate();
-
-        grpcPrototypeClient.unaryCalculations();
-
-        grpcPrototypeClient.unaryServerStreaming();
-
-        grpcPrototypeClient.unaryClientStreaming();
-
-        grpcPrototypeClient.unaryClientStreamingAvgCalculation();
-
-        grpcPrototypeClient.biDirectionalServerClientStreaming();
-
-        grpcPrototypeClient.biDirectionalServerClientStreamingMaxCalculation();
-
-        grpcPrototypeClient.unaryCalculateSqrt();
-
-        grpcPrototypeClient.exit();
-    }
-
     private void unaryCalculateSqrt() {
         try {
             System.out.println(calculatorServiceBlockingStub.findSqrt(SingleInputRequest.newBuilder().setValue(4).build()));
@@ -261,6 +236,64 @@ public class GrpcPrototypeClient {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void unaryPingWithDeadline() {
+        try {
+            System.out.println("Pinging with deadline of 800ms");
+            System.out.println(pingPongServiceBlockingStub
+                    .withDeadline(Deadline.after(800, TimeUnit.MILLISECONDS))
+                    .pingWithDeadline(Ping.newBuilder()
+                            .setMessage("Sam")
+                            .build()));
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus() == Status.DEADLINE_EXCEEDED) {
+                System.out.println("Deadline exceeded, we do not want the response");
+            } else {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            System.out.println("Pinging with deadline of 100ms");
+            System.out.println(pingPongServiceBlockingStub
+                    .withDeadline(Deadline.after(100, TimeUnit.MILLISECONDS))
+                    .pingWithDeadline(Ping.newBuilder()
+                            .setMessage("Anderson")
+                            .build()));
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus() == Status.DEADLINE_EXCEEDED) {
+                System.out.println("Deadline exceeded, we do not want the response");
+            } else {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        GrpcPrototypeClient grpcPrototypeClient = new GrpcPrototypeClient();
+
+        grpcPrototypeClient.initialize();
+
+//        grpcPrototypeClient.unaryUserCreate();
+//
+//        grpcPrototypeClient.unaryCalculations();
+//
+//        grpcPrototypeClient.unaryServerStreaming();
+//
+//        grpcPrototypeClient.unaryClientStreaming();
+//
+//        grpcPrototypeClient.unaryClientStreamingAvgCalculation();
+//
+//        grpcPrototypeClient.biDirectionalServerClientStreaming();
+//
+//        grpcPrototypeClient.biDirectionalServerClientStreamingMaxCalculation();
+//
+//        grpcPrototypeClient.unaryCalculateSqrt();
+
+        grpcPrototypeClient.unaryPingWithDeadline();
+
+        grpcPrototypeClient.exit();
     }
 
 }

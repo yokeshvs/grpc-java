@@ -4,6 +4,7 @@ import com.google.protobuf.Empty;
 import com.yo.prototype.Ping;
 import com.yo.prototype.PingPongServiceGrpc;
 import com.yo.prototype.Pong;
+import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 
 public class PingPongServiceImpl extends PingPongServiceGrpc.PingPongServiceImplBase {
@@ -11,7 +12,7 @@ public class PingPongServiceImpl extends PingPongServiceGrpc.PingPongServiceImpl
     public void ping(Empty request, StreamObserver<Pong> responseObserver) {
         try {
             for (int i = 0; i < 3; i++) {
-                responseObserver.onNext(Pong.newBuilder().setMessage("Hello there! Now the time is " + String.valueOf(System.currentTimeMillis())).build());
+                responseObserver.onNext(Pong.newBuilder().setMessage("Hello there! Now the time is " + System.currentTimeMillis()).build());
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
@@ -24,7 +25,7 @@ public class PingPongServiceImpl extends PingPongServiceGrpc.PingPongServiceImpl
     @Override
     public StreamObserver<Ping> streamingPing(StreamObserver<Pong> responseObserver) {
         StringBuilder stringBuilder = new StringBuilder();
-        return new StreamObserver<Ping>() {
+        return new StreamObserver<>() {
             @Override
             public void onNext(Ping value) {
                 stringBuilder.append(value.getMessage()).append(" ");
@@ -61,5 +62,29 @@ public class PingPongServiceImpl extends PingPongServiceGrpc.PingPongServiceImpl
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void pingWithDeadline(Ping request, StreamObserver<Pong> responseObserver) {
+        try {
+            Context context = Context.current();
+            for (int i = 0; i < 3; i++) {
+                if (!context.isCancelled()) {
+                    try {
+                        System.out.println("Sleeping for 100ms");
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    return;
+                }
+            }
+            responseObserver.onNext(Pong.newBuilder().setMessage("Hello " + request.getMessage()).build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            responseObserver.onCompleted();
+        }
     }
 }
