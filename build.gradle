@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'com.google.protobuf' version '0.8.8'
+}
+
+group 'com.yo.prototype'
+version '1.0-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_14
+targetCompatibility = JavaVersion.VERSION_14
+
+repositories {
+    mavenCentral()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.12.0"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.31.1'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+dependencies {
+    //************ GRPC ******************
+    implementation 'io.grpc:grpc-netty-shaded:1.31.1'
+    implementation 'io.grpc:grpc-protobuf:1.31.1'
+    implementation 'io.grpc:grpc-stub:1.31.1'
+    compile 'javax.annotation:javax.annotation-api:1.3.2' // Workaround for @javax.annotation.Generated (Alternate for below lib)
+    //compileOnly 'org.apache.tomcat:tomcat-annotations-api:10.0.0-M7' // necessary for Java 9+
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+// if you have source imports issues, add the below
+//sourceSets.main.java.srcDir new File(buildDir, 'generated/source')
+//idea {
+//    module {
+//        // Marks the already(!) added srcDir as "generated"
+//        generatedSourceDirs += file('build/generated/source')
+//    }
+//}
+
+
+// Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}

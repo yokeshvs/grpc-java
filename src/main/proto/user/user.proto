@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package proto.user;
+
+option java_package = "com.yo.prototype";
+option java_multiple_files = true;
+
+message User {
+  string firstName = 1;
+  string lastName = 2;
+}
+
+message UserRequest {
+  User user = 1;
+}
+
+message UserResponse {
+  string firstName = 1;
+  string lastName = 2;
+  string id = 3;
+}
+
+service UserService {
+  //Unary
+  rpc createUser(UserRequest) returns (UserResponse) {};
+}
+
