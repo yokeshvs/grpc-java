@@ -23,4 +23,5 @@ service CalculatorService {
   rpc subtract(CalculatorRequest) returns (CalculatorResponse) {};
   rpc multiply(CalculatorRequest) returns (CalculatorResponse) {};
   rpc primeDecompose(SingleInputRequest) returns (stream CalculatorResponse) {};
+  rpc average(stream SingleInputRequest) returns (CalculatorResponse) {};
 }

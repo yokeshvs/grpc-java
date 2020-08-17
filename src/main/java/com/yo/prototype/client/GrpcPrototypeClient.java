@@ -16,6 +16,7 @@ public class GrpcPrototypeClient {
     CalculatorServiceGrpc.CalculatorServiceBlockingStub calculatorServiceBlockingStub;
     PingPongServiceGrpc.PingPongServiceBlockingStub pingPongServiceBlockingStub;
     PingPongServiceGrpc.PingPongServiceStub pingPongServiceAsyncStub; //Async stub for client streaming
+    CalculatorServiceGrpc.CalculatorServiceStub calculatorServiceAsyncStub;
 
     private void initialize() {
         //Create Channel
@@ -39,6 +40,7 @@ public class GrpcPrototypeClient {
 
         //Below is an async client for Client Streaming connection
         pingPongServiceAsyncStub = PingPongServiceGrpc.newStub(channel);
+        calculatorServiceAsyncStub = CalculatorServiceGrpc.newStub(channel);
     }
 
     private void exit() {
@@ -121,6 +123,36 @@ public class GrpcPrototypeClient {
         }
     }
 
+    private void unaryClientStreamingAvgCalculation() {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        StreamObserver<SingleInputRequest> requestStreamObserver = calculatorServiceAsyncStub.average(new StreamObserver<>() {
+            @Override
+            public void onNext(CalculatorResponse value) {
+                System.out.println("Average is " + value.getResult());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                countDownLatch.countDown();
+            }
+        });
+        requestStreamObserver.onNext(SingleInputRequest.newBuilder().setValue(10).build());
+        requestStreamObserver.onNext(SingleInputRequest.newBuilder().setValue(20).build());
+        requestStreamObserver.onNext(SingleInputRequest.newBuilder().setValue(30).build());
+        requestStreamObserver.onNext(SingleInputRequest.newBuilder().setValue(40).build());
+        requestStreamObserver.onCompleted();
+        try {
+            countDownLatch.await(3L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         GrpcPrototypeClient grpcPrototypeClient = new GrpcPrototypeClient();
 
@@ -134,6 +166,9 @@ public class GrpcPrototypeClient {
 
         grpcPrototypeClient.unaryClientStreaming();
 
+        grpcPrototypeClient.unaryClientStreamingAvgCalculation();
+
         grpcPrototypeClient.exit();
     }
+
 }
